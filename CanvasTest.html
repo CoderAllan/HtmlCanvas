@@ -1,0 +1,145 @@
+<html>
+
+<head>
+</head>
+
+<body>
+  <canvas id="myCanvas" width="1000" height="1000" style="border:1px solid lightgray;"></canvas>
+  <script lang="javascript">
+    const PointType = {
+      None: 0,
+      Small: 1,
+      SmallCircle: 2,
+      Large: 3,
+      LargeCircle: 4
+    };
+    var lineSegment = {
+      xStart: 0,
+      xEnd: 0,
+      y: 0,
+      type: PointType.None
+    };
+    const bigCircle = 6
+    const smallCircle = 4
+
+    function circle(ctx, x, y, radius, filled, lineWidth) {
+      ctx.beginPath();
+      if (lineWidth != null) {
+        var lineWidthBefore = ctx.lineWidth
+        ctx.lineWidth = lineWidth
+      }
+      ctx.arc(x, y, radius, 0, 2 * Math.PI);
+      if (filled) {
+        ctx.fillStyle = "black";
+        ctx.fill();
+      } else {
+        ctx.stroke();
+      }
+      if (lineWidth != null) {
+        ctx.lineWidth = lineWidthBefore
+      }
+      ctx.closePath();
+    }
+
+    function square(ctx, x, y, size){
+      var propability = rnd(0,100);
+      if(propability > 80){
+        var color = "#10a8e0";
+        ctx.fillStyle = color;
+        ctx.fillRect(x - size / 2, y - size /2, size, size);
+      }
+    }
+
+    function rnd(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function doubleCircle(ctx, x, y, radius) {
+      circle(ctx, x, y, radius, true);
+      circle(ctx, x, y, 12, false, 1);
+    }
+
+    function horisontalLine(ctx, xStart, xEnd, y, lineWidth) {
+      ctx.beginPath()
+      ctx.lineWidth = lineWidth;
+      //ctx.strokeStyle = "#101010"
+      ctx.moveTo(xStart, y);
+      ctx.stroke();
+      ctx.lineTo(xEnd, y);
+      ctx.stroke();
+      ctx.closePath()
+    }
+
+    function verticalLine(ctx, x, yStart, yEnd, lineWidth) {
+      ctx.beginPath()
+      ctx.lineWidth = lineWidth;
+      //ctx.strokeStyle = "#dddddd"
+      ctx.moveTo(x, yStart);
+      ctx.stroke();
+      ctx.lineTo(x, yEnd);
+      ctx.stroke();
+      ctx.closePath()
+    }
+
+    function rndCircle(ctx, x, y) {
+      var type = rnd(1, 6)
+      if (type == 1) {
+        circle(ctx, x, y, smallCircle, false);
+      } else if (type == 2) {
+        circle(ctx, x, y, smallCircle, true);
+      } else if (type == 3) {
+        circle(ctx, x, y, bigCircle, false);
+      } else if (type == 4) {
+        circle(ctx, x, y, bigCircle, true);
+      } else if (type == 5) {
+        doubleCircle(ctx, x, y, smallCircle);
+      } else if (type == 6) {
+        doubleCircle(ctx, x, y, bigCircle);
+      }
+    }
+
+    function turnUpOrDown() {
+      var val = rnd(0, 100);
+      if (val >= 50) {
+        return -1;
+      } else {
+        return 1;
+      }
+    }
+
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+    var xStart = 1000
+    var yStart = 0
+    var squareSize = 30;
+    for (i = 0; i < 10; i++) {
+      yStart = yStart + rnd(20, 50) + 50
+      xStart = 1000 - rnd(0, 200)
+
+      var x = xStart
+      var y = yStart
+      for (j = 0; j < rnd(2, 7); j++) {
+        ctx.moveTo(x, y);
+        rndCircle(ctx, x, y);
+
+        var upOrDown = turnUpOrDown();
+        var xEnd = x - rnd(50, 160)
+        horisontalLine(ctx, x, xEnd, y, rnd(1, 3));
+        
+        var yEnd = y + upOrDown * rnd(30, 100)
+        verticalLine(ctx, xEnd, y, yEnd)
+        rndCircle(ctx, xEnd, yEnd);
+
+        if(x - xEnd > squareSize * 2) {
+          square(ctx, rnd(x - squareSize, xEnd + squareSize), y, squareSize);
+        }
+        x = xEnd
+        y = yEnd
+      }
+    }
+  </script>
+</body>
+
+</html>
